@@ -16,7 +16,24 @@ const textureLoader = new THREE.TextureLoader();
 const earthTexture = textureLoader.load("/earth.png");
 const moonTexture = textureLoader.load("/moon1.png");
 const cloudTexture = textureLoader.load("/clouds4.jpg");
-const markerIcon = textureLoader.load("/marker-icon.png"); // Replace with your marker icon image
+const markerIcon = textureLoader.load("/marker-icon.png");
+// Load the background texture
+const cosmosTexture = textureLoader.load("/milkyway.jpg");
+
+// Create a large sphere around the scene for the background
+const backgroundGeometry = new THREE.SphereGeometry(500, 64, 64);
+const backgroundMaterial = new THREE.MeshBasicMaterial({
+  map: cosmosTexture,
+  side: THREE.BackSide, // Render inside of the sphere
+  // color: new THREE.Color(0x222222), // Adjust color to darken the texture
+  // color: new THREE.Color(0x0d1b2a), // Adjust color to darken the texture
+  // color: new THREE.Color(0x2c003e), // Adjust color to darken the texture
+  // color: new THREE.Color(0x1b3a4b), // Adjust color to darken the texture
+  color: new THREE.Color(0x132636), // Adjust color to darken the texture
+});
+const backgroundSphere = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+scene.add(backgroundSphere);
+
 
 // Earth geometry and material with texture
 const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
@@ -48,7 +65,7 @@ const moon = new THREE.Mesh(moonGeometry, moonMaterial);
 moon.position.x = -2;
 scene.add(moon);
 
-camera.position.z = 5;
+camera.position.z = 3;
 
 // Function to convert latitude/longitude to 3D coordinates
 function latLonToXYZ(lat, lon, radius) {
@@ -180,12 +197,15 @@ controls.panSpeed = 0.5;
 controls.enablePan = false;
 controls.screenSpacePanning = false;
 controls.enableKeys = false;
+controls.minDistance = 1.8; // Minimum zoom distance (adjust to your preference)
+controls.maxDistance = 5; // Maximum zoom distance (adjust as needed)
 
 function animate() {
   window.requestAnimationFrame(animate);
   renderer.render(scene, camera);
 
   clouds.rotation.y += 0.001; // Rotate clouds slightly slower for effect
+  backgroundSphere.rotation.y += 0;
 
   controls.update();
   TWEEN.update(); // Update tween animations
