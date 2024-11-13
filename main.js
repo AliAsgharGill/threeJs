@@ -18,7 +18,7 @@ const textureLoader = new THREE.TextureLoader();
 const earthTexture = textureLoader.load("/earth.png");
 const moonTexture = textureLoader.load("/moon1.png");
 const cloudTexture = textureLoader.load("/clouds4.jpg");
-const markerIcon = textureLoader.load("/marker-icon.png");
+const markerIcon = textureLoader.load("/location.png");
 // Load the background texture
 const cosmosTexture = textureLoader.load("/milkyway.jpg");
 
@@ -94,7 +94,7 @@ function addCountryBorders(countries) {
 
     // Convert the coordinates to 3D positions on the globe
     const points = flatCoordinates.map(([lon, lat]) => {
-      const { x, y, z } = latLonToXYZ(lat, lon, 1.01); // Radius slightly larger than Earth
+      const { x, y, z } = latLonToXYZ(lat, lon, 1); // Radius slightly larger than Earth
       return new THREE.Vector3(x, y, z);
     });
 
@@ -145,7 +145,7 @@ locations.forEach((location) => {
 
   // Position the marker at the 3D coordinates
   marker.position.set(markerPosition.x, markerPosition.y, markerPosition.z);
-  marker.scale.set(0.05, 0.05, 0.05); // Adjust size of the marker to be smaller
+  marker.scale.set(0.04, 0.04, 0.04); // Adjust size of the marker to be smaller
 
   // Add the marker to the scene
   scene.add(marker);
