@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import countries from "./countries.geo.json";
-// import countries from "./custom.geo.json";
 
 import TWEEN from "@tweenjs/tween.js";
 
@@ -126,6 +125,22 @@ const locations = [
   { name: "New York City", lat: 40.7128, lon: -74.006 },
   { name: "Paris", lat: 48.8566, lon: 2.3522 },
   { name: "Tokyo", lat: 35.6762, lon: 139.6503 },
+  { name: "London", lat: 51.5074, lon: -0.1278 },
+  { name: "Sydney", lat: -33.8688, lon: 151.2093 },
+  { name: "Cairo", lat: 30.0444, lon: 31.2357 },
+  { name: "Moscow", lat: 55.7558, lon: 37.6173 },
+  { name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729 },
+  { name: "Cape Town", lat: -33.9249, lon: 18.4241 },
+  { name: "Beijing", lat: 39.9042, lon: 116.4074 },
+  { name: "Berlin", lat: 52.52, lon: 13.405 },
+  { name: "Dubai", lat: 25.2048, lon: 55.2708 },
+  { name: "Toronto", lat: 43.65107, lon: -79.347015 },
+  { name: "Los Angeles", lat: 34.0522, lon: -118.2437 },
+  { name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729 },
+  { name: "Lagos", lat: 6.5244, lon: 3.3792 },
+  { name: "Buenos Aires", lat: -34.6037, lon: -58.3816 },
+  { name: "Seoul", lat: 37.5665, lon: 126.978 },
+  { name: "Mexico City", lat: 19.4326, lon: -99.1332 },
 ];
 
 addCountryBorders(countries);
@@ -154,9 +169,16 @@ locations.forEach((location) => {
   // Create the name label using THREE.TextGeometry or CanvasTexture
   const textCanvas = document.createElement("canvas");
   const context = textCanvas.getContext("2d");
-  context.font = "24px Arial";
-  context.fillStyle = "white";
+
+  // Set a larger font size for better visibility and contrast
+  context.font = "28px Arial"; // Increased font size
+  context.fillStyle = "yellow"; // Set the text color to bright yellow for visibility
+
+  // Add a shadow effect to the text for better contrast
+  context.shadowColor = "black"; // Shadow color for contrast
+  context.shadowBlur = 3; // Blurring effect for shadow
   context.fillText(name, 10, 50); // Adjust position of the name text
+
   const nameTexture = new THREE.CanvasTexture(textCanvas);
 
   const nameMaterial = new THREE.SpriteMaterial({ map: nameTexture });
@@ -165,7 +187,7 @@ locations.forEach((location) => {
   // Position the name label slightly above the marker, adjust the offset if needed
   nameSprite.position.set(
     markerPosition.x,
-    markerPosition.y + 0.03, // Adjust position of name label closer to the marker
+    markerPosition.y + 0.01, // Adjust position of name label closer to the marker
     markerPosition.z
   );
   nameSprite.scale.set(0.3, 0.3, 1); // Adjust the scale of the name text
