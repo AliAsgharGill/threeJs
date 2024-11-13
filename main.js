@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import countries from "./countries.geo.json";
+// import countries from "./custom.geo.json";
 
 import TWEEN from "@tweenjs/tween.js";
 
@@ -25,15 +27,10 @@ const backgroundGeometry = new THREE.SphereGeometry(500, 64, 64);
 const backgroundMaterial = new THREE.MeshBasicMaterial({
   map: cosmosTexture,
   side: THREE.BackSide, // Render inside of the sphere
-  // color: new THREE.Color(0x222222), // Adjust color to darken the texture
-  // color: new THREE.Color(0x0d1b2a), // Adjust color to darken the texture
-  // color: new THREE.Color(0x2c003e), // Adjust color to darken the texture
-  // color: new THREE.Color(0x1b3a4b), // Adjust color to darken the texture
   color: new THREE.Color(0x132636), // Adjust color to darken the texture
 });
 const backgroundSphere = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
 scene.add(backgroundSphere);
-
 
 // Earth geometry and material with texture
 const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
@@ -54,7 +51,6 @@ const cloudMaterial = new THREE.MeshBasicMaterial({
 const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
 scene.add(clouds);
 
-
 // Moon geometry and material with texture
 const moonGeometry = new THREE.SphereGeometry(0.2, 32, 32);
 const moonMaterial = new THREE.MeshBasicMaterial({
@@ -67,17 +63,77 @@ scene.add(moon);
 
 camera.position.z = 3;
 
-// Function to convert latitude/longitude to 3D coordinates
+// start
+// Function to convert latitude, longitude to 3D coordinates (XYZ)
+// Convert latitude and longitude to XYZ coordinates
 function latLonToXYZ(lat, lon, radius) {
-  const phi = (90 - lat) * (Math.PI / 180); // Latitude to phi (polar angle)
-  const theta = (lon + 180) * (Math.PI / 180); // Longitude to theta (azimuthal angle)
+  // Convert latitude to polar angle (phi), where 90° is the top (North Pole)
+  const phi = (90 - lat) * (Math.PI / 180); // Latitude to phi (0 to pi)
 
-  const x = radius * Math.sin(phi) * Math.cos(theta);
-  const y = radius * Math.cos(phi);
-  const z = radius * Math.sin(phi) * Math.sin(theta);
+  // Convert longitude to azimuthal angle (theta) and adjust for Three.js coordinate system
+  // Three.js uses the standard mathematical coordinate system where:
+  // - Longitude goes from -π to +π (equivalent to -180° to +180°)
+  // - Positive longitude is to the right of the Prime Meridian (East), negative to the left (West)
+  const theta = lon * (Math.PI / -180); // Longitude to theta (-π to π)
 
-  return new THREE.Vector3(x, y, z);
+  // Convert spherical coordinates (phi, theta) to Cartesian coordinates (x, y, z)
+  const x = radius * Math.sin(phi) * Math.cos(theta); // X = radius * sin(phi) * cos(theta)
+  const y = radius * Math.cos(phi); // Y = radius * cos(phi)
+  const z = radius * Math.sin(phi) * Math.sin(theta); // Z = radius * sin(phi) * sin(theta)
+
+  return new THREE.Vector3(x, y, z); // Return the 3D position
 }
+
+// Function to plot a country on the globe using its lat, lon
+function plotCountry(lat, lon, radius) {
+  const position = latLonToXYZ(lat, lon, radius);
+  const sphereGeometry = new THREE.SphereGeometry(0.1, 8, 8); // Smaller sphere to represent the country
+  const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color for the country
+  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  sphere.position.copy(position); // Set the position of the sphere
+
+  scene.add(sphere); // Add the sphere to the Three.js scene
+}
+
+// Function to load and parse GeoJSON country borders and plot them on the globe
+function addCountryBorders(countries) {
+  countries.features.forEach((country) => {
+    const coordinates = country.geometry.coordinates;
+
+    // Flatten the geoJSON coordinates if it's nested
+    const flatCoordinates = flattenCoordinates(coordinates);
+
+    // Convert the coordinates to 3D positions on the globe
+    const points = flatCoordinates.map(([lon, lat]) => {
+      const { x, y, z } = latLonToXYZ(lat, lon, 1.01); // Radius slightly larger than Earth
+      return new THREE.Vector3(x, y, z);
+    });
+
+    // Create a line for the country borders
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      opacity: 0.7,
+    });
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(lineGeometry, lineMaterial);
+    scene.add(line);
+  });
+}
+
+// Helper function to flatten nested coordinates in GeoJSON (if any)
+function flattenCoordinates(coords) {
+  if (coords[0][0] instanceof Array) {
+    return coords[0]; // If it's nested, just return the inner array
+  }
+  return coords; // Otherwise, return the array directly
+}
+
+// Example usage to plot countries on the globe
+const radius = 5; // Radius of the globe
+
+// Example country coordinates (latitude, longitude)
+plotCountry(30.3753, 69.3451, radius); // Pakistan
+plotCountry(20.5937, 78.9629, radius); // India
 
 // Example locations: New York City, Paris, Tokyo
 const locations = [
@@ -86,6 +142,11 @@ const locations = [
   { name: "Paris", lat: 48.8566, lon: 2.3522 },
   { name: "Tokyo", lat: 35.6762, lon: 139.6503 },
 ];
+
+addCountryBorders(countries);
+// Now you can call addCountryBorders directly with the imported JSON
+
+// end
 
 // Create markers and name labels for locations
 const markers = [];
