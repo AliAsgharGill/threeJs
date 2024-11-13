@@ -84,17 +84,6 @@ function latLonToXYZ(lat, lon, radius) {
   return new THREE.Vector3(x, y, z); // Return the 3D position
 }
 
-// Function to plot a country on the globe using its lat, lon
-function plotCountry(lat, lon, radius) {
-  const position = latLonToXYZ(lat, lon, radius);
-  const sphereGeometry = new THREE.SphereGeometry(0.1, 8, 8); // Smaller sphere to represent the country
-  const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color for the country
-  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-  sphere.position.copy(position); // Set the position of the sphere
-
-  scene.add(sphere); // Add the sphere to the Three.js scene
-}
-
 // Function to load and parse GeoJSON country borders and plot them on the globe
 function addCountryBorders(countries) {
   countries.features.forEach((country) => {
@@ -131,10 +120,6 @@ function flattenCoordinates(coords) {
 // Example usage to plot countries on the globe
 const radius = 5; // Radius of the globe
 
-// Example country coordinates (latitude, longitude)
-plotCountry(30.3753, 69.3451, radius); // Pakistan
-plotCountry(20.5937, 78.9629, radius); // India
-
 // Example locations: New York City, Paris, Tokyo
 const locations = [
   { name: "Bahawalpur", lat: 29.3544, lon: 71.6911 },
@@ -144,16 +129,15 @@ const locations = [
 ];
 
 addCountryBorders(countries);
-// Now you can call addCountryBorders directly with the imported JSON
 
 // end
 
-// Create markers and name labels for locations
+/// Create markers and name labels for locations
 const markers = [];
 const names = [];
 locations.forEach((location) => {
   const { lat, lon, name } = location;
-  const markerPosition = latLonToXYZ(lat, lon, 1.05); // Slightly larger radius than Earth
+  const markerPosition = latLonToXYZ(lat, lon, 1.03); // Slightly larger radius than Earth
 
   // Create a sprite for the marker
   const markerMaterial = new THREE.SpriteMaterial({ map: markerIcon });
@@ -161,7 +145,7 @@ locations.forEach((location) => {
 
   // Position the marker at the 3D coordinates
   marker.position.set(markerPosition.x, markerPosition.y, markerPosition.z);
-  marker.scale.set(0.1, 0.1, 1); // Adjust size
+  marker.scale.set(0.05, 0.05, 0.05); // Adjust size of the marker to be smaller
 
   // Add the marker to the scene
   scene.add(marker);
@@ -178,13 +162,13 @@ locations.forEach((location) => {
   const nameMaterial = new THREE.SpriteMaterial({ map: nameTexture });
   const nameSprite = new THREE.Sprite(nameMaterial);
 
-  // Position the name label slightly above the marker
+  // Position the name label slightly above the marker, adjust the offset if needed
   nameSprite.position.set(
     markerPosition.x,
-    markerPosition.y + 0.1,
+    markerPosition.y + 0.03, // Adjust position of name label closer to the marker
     markerPosition.z
   );
-  nameSprite.scale.set(0.5, 0.5, 1); // Adjust the scale of the name text
+  nameSprite.scale.set(0.3, 0.3, 1); // Adjust the scale of the name text
 
   // Add the name label to the scene
   scene.add(nameSprite);
